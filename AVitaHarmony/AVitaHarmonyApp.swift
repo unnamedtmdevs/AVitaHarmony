@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct AVitaHarmonyApp: App {
+    @AppStorage(AppConstants.StorageKeys.hasCompletedOnboarding) private var hasCompletedOnboarding = false
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(hasCompletedOnboarding: $hasCompletedOnboarding)
         }
     }
 }
