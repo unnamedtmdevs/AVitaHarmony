@@ -7,7 +7,7 @@ import SwiftUI
 
 struct MeditationView: View {
     let session: MeditationSession
-    @Binding var isPresented: Bool
+    @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var meditationViewModel: MeditationViewModel
     @EnvironmentObject var settingsViewModel: SettingsViewModel
     @State private var showCompletion = false
@@ -37,7 +37,7 @@ struct MeditationView: View {
                 // Header
                 HStack {
                     Button(action: {
-                        isPresented = false
+                        presentationMode.wrappedValue.dismiss()
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 20, weight: .semibold))
@@ -187,7 +187,7 @@ struct MeditationView: View {
                 
                 Button(action: {
                     meditationViewModel.cancelSession()
-                    isPresented = false
+                    presentationMode.wrappedValue.dismiss()
                 }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 20, weight: .semibold))
@@ -293,7 +293,7 @@ struct MeditationView: View {
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     showCompletion = false
-                    isPresented = false
+                    presentationMode.wrappedValue.dismiss()
                 }
             }
         }

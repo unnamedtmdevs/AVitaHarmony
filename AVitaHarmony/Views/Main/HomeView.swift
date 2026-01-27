@@ -11,8 +11,6 @@ struct HomeView: View {
     @EnvironmentObject var settingsViewModel: SettingsViewModel
     @State private var selectedWorkout: Workout?
     @State private var selectedMeditation: MeditationSession?
-    @State private var showingWorkout = false
-    @State private var showingMeditation = false
     
     var body: some View {
         ZStack {
@@ -83,7 +81,6 @@ struct HomeView: View {
                                 ) {
                                     if let workout = fitnessViewModel.availableWorkouts.first {
                                         selectedWorkout = workout
-                                        showingWorkout = true
                                     }
                                 }
                                 
@@ -96,7 +93,6 @@ struct HomeView: View {
                                 ) {
                                     if let session = meditationViewModel.availableSessions.first {
                                         selectedMeditation = session
-                                        showingMeditation = true
                                     }
                                 }
                             }
@@ -114,16 +110,24 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, AppConstants.UI.largeSpacing)
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(fitnessViewModel.availableWorkouts.prefix(5)) { workout in
-                                    WorkoutCard(workout: workout) {
-                                        selectedWorkout = workout
-                                        showingWorkout = true
+                        if fitnessViewModel.availableWorkouts.isEmpty {
+                            Text("Loading workouts...")
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(AppConstants.Colors.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .padding(.horizontal, AppConstants.UI.largeSpacing)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(fitnessViewModel.availableWorkouts.prefix(5)) { workout in
+                                        WorkoutCard(workout: workout) {
+                                            selectedWorkout = workout
+                                        }
                                     }
                                 }
+                                .padding(.horizontal, AppConstants.UI.largeSpacing)
                             }
-                            .padding(.horizontal, AppConstants.UI.largeSpacing)
                         }
                     }
                     
@@ -137,16 +141,24 @@ struct HomeView: View {
                         }
                         .padding(.horizontal, AppConstants.UI.largeSpacing)
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                ForEach(meditationViewModel.availableSessions.prefix(5)) { session in
-                                    MeditationCard(session: session) {
-                                        selectedMeditation = session
-                                        showingMeditation = true
+                        if meditationViewModel.availableSessions.isEmpty {
+                            Text("Loading meditation sessions...")
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(AppConstants.Colors.textSecondary)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .padding(.horizontal, AppConstants.UI.largeSpacing)
+                        } else {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(meditationViewModel.availableSessions.prefix(5)) { session in
+                                        MeditationCard(session: session) {
+                                            selectedMeditation = session
+                                        }
                                     }
                                 }
+                                .padding(.horizontal, AppConstants.UI.largeSpacing)
                             }
-                            .padding(.horizontal, AppConstants.UI.largeSpacing)
                         }
                     }
                     
@@ -156,14 +168,23 @@ struct HomeView: View {
             }
         }
         .sheet(item: $selectedWorkout) { workout in
-            WorkoutView(workout: workout, isPresented: $showingWorkout)
+            WorkoutView(workout: workout)
                 .environmentObject(fitnessViewModel)
                 .environmentObject(settingsViewModel)
         }
         .sheet(item: $selectedMeditation) { session in
-            MeditationView(session: session, isPresented: $showingMeditation)
+            MeditationView(session: session)
                 .environmentObject(meditationViewModel)
                 .environmentObject(settingsViewModel)
+        }
+        .onAppear {
+            // Ensure workouts and sessions are loaded
+            if fitnessViewModel.availableWorkouts.isEmpty {
+                fitnessViewModel.loadWorkouts(for: settingsViewModel.userProfile)
+            }
+            if meditationViewModel.availableSessions.isEmpty {
+                meditationViewModel.loadSessions(for: settingsViewModel.userProfile)
+            }
         }
     }
 }

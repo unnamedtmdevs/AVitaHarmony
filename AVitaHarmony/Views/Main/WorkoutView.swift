@@ -7,7 +7,7 @@ import SwiftUI
 
 struct WorkoutView: View {
     let workout: Workout
-    @Binding var isPresented: Bool
+    @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var fitnessViewModel: FitnessViewModel
     @EnvironmentObject var settingsViewModel: SettingsViewModel
     @State private var showCompletion = false
@@ -37,7 +37,7 @@ struct WorkoutView: View {
                 // Header
                 HStack {
                     Button(action: {
-                        isPresented = false
+                        presentationMode.wrappedValue.dismiss()
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 20, weight: .semibold))
@@ -157,7 +157,7 @@ struct WorkoutView: View {
                 
                 Button(action: {
                     fitnessViewModel.cancelWorkout()
-                    isPresented = false
+                    presentationMode.wrappedValue.dismiss()
                 }) {
                     Image(systemName: "xmark")
                         .font(.system(size: 20, weight: .semibold))
@@ -295,7 +295,7 @@ struct WorkoutView: View {
                 
                 DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                     showCompletion = false
-                    isPresented = false
+                    presentationMode.wrappedValue.dismiss()
                 }
             }
         }
